@@ -133,7 +133,7 @@ export default function SearchModal({ onClose, onFullscreenCamera }: SearchModal
                       <div>
                         <div className="flex items-center gap-2">
                           <span className={`pill-badge pill-badge-${person.category} scale-90 origin-left`}>
-                            {person.category}
+                            {person.category === 'staff' ? 'Employee' : person.category === 'student' ? 'Visitor' : person.category === 'member' ? 'Guest' : person.category}
                           </span>
                           <span className="text-xs font-semibold text-[var(--text-primary)]">{person.name}</span>
                         </div>

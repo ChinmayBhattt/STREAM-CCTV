@@ -35,9 +35,9 @@ export default function WatchlistPage() {
 
   const categories = [
     { value: 'all', label: 'All' },
-    { value: 'staff', label: 'Staff' },
-    { value: 'student', label: 'Student' },
-    { value: 'member', label: 'Member' },
+    { value: 'staff', label: 'Employee' },
+    { value: 'student', label: 'Visitor' },
+    { value: 'member', label: 'Guest' },
     { value: 'watchlist', label: 'Watchlist' },
   ];
 
@@ -125,7 +125,7 @@ export default function WatchlistPage() {
                   </p>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className={`pill-badge pill-badge-${person.category}`}>
-                      {person.category}
+                      {person.category === 'staff' ? 'Employee' : person.category === 'student' ? 'Visitor' : person.category === 'member' ? 'Guest' : person.category}
                     </span>
                     <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">
                       {person.matchCount} matches
@@ -338,7 +338,7 @@ function EnrollModal({
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-2">
               Role / Designation
             </label>
-            <input className="input-pill" placeholder="e.g., CS Dept Student" value={role} onChange={(e) => setRole(e.target.value)} required id="enroll-role" />
+            <input className="input-pill" placeholder="e.g., Security Officer, Contractor" value={role} onChange={(e) => setRole(e.target.value)} required id="enroll-role" />
           </div>
 
           <div>
@@ -352,10 +352,10 @@ function EnrollModal({
               id="enroll-category"
               style={{ appearance: 'none', backgroundPosition: 'right 16px center' }}
             >
-              <option value="staff">Staff Member</option>
-              <option value="student">Student</option>
-              <option value="member">Registered Member</option>
-              <option value="watchlist">Security Watchlist</option>
+              <option value="staff">Employee / Staff</option>
+              <option value="student">Visitor / Contractor</option>
+              <option value="member">Authorized Guest</option>
+              <option value="watchlist">Watchlist / Alert List</option>
             </select>
           </div>
 
