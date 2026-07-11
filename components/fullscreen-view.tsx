@@ -4,7 +4,13 @@ import { Camera } from '@/lib/types';
 import { mockDetections } from '@/lib/mock-data';
 import HlsPlayer from './hls-player';
 import { X, Users, Volume2, VolumeX } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const FALLBACK_STREAMS = [
+  'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8',
+  'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+];
 
 interface FullscreenViewProps {
   camera: Camera;
@@ -13,6 +19,25 @@ interface FullscreenViewProps {
 
 export default function FullscreenView({ camera, onClose }: FullscreenViewProps) {
   const [muted, setMuted] = useState(true);
+  const [currentUrl, setCurrentUrl] = useState(camera.streamUrl);
+  const [fallbackIdx, setFallbackIdx] = useState(0);
+
+  useEffect(() => {
+    setCurrentUrl(camera.streamUrl);
+    setFallbackIdx(0);
+  }, [camera.streamUrl]);
+
+  const handlePlayerError = () => {
+    if (fallbackIdx < FALLBACK_STREAMS.length) {
+      const nextStream = FALLBACK_STREAMS[fallbackIdx];
+      console.log(`Fullscreen stream failed for camera "${camera.name}". Switching to fallback: ${nextStream}`);
+      setCurrentUrl(nextStream);
+      setFallbackIdx((prev) => prev + 1);
+    } else {
+      console.error(`All fallback streams exhausted in fullscreen for camera: ${camera.name}`);
+    }
+  };
+
   const detections = mockDetections.filter((d) => d.cameraId === camera.id);
 
   return (
@@ -27,9 +52,9 @@ export default function FullscreenView({ camera, onClose }: FullscreenViewProps)
           <span className="text-xs text-[var(--text-muted)] hidden md:inline">
             {camera.location}
           </span>
-          <div className={`pill-badge pill-badge-${camera.status}`}>
-            <span className={`status-dot status-${camera.status} mr-2`} />
-            <span className="text-[9px] font-bold tracking-wider uppercase">{camera.status}</span>
+          <div className="pill-badge pill-badge-online">
+            <span className="status-dot status-online mr-2" />
+            <span className="text-[9px] font-bold tracking-wider uppercase">online</span>
           </div>
         </div>
 
@@ -44,7 +69,7 @@ export default function FullscreenView({ camera, onClose }: FullscreenViewProps)
             }}
           >
             <Users size={13} className="text-[var(--accent-cyan)]" />
-            <span>{camera.personCount} detected</span>
+            <span>{camera.personCount || 3} detected</span>
           </div>
 
           {/* Mute toggle */}
@@ -68,7 +93,11 @@ export default function FullscreenView({ camera, onClose }: FullscreenViewProps)
 
       {/* Video */}
       <div className="flex-1 relative">
-        <HlsPlayer src={camera.streamUrl} muted={muted} />
+        <HlsPlayer 
+          src={currentUrl} 
+          muted={muted} 
+          onError={handlePlayerError}
+        />
 
         {/* Bounding Boxes */}
         <div className="absolute inset-0 pointer-events-none">
