@@ -37,7 +37,7 @@ export default function CameraTile({ camera, onFullscreen, onEdit, onDelete }: C
       setCurrentUrl(nextStream);
       setFallbackIdx((prev) => prev + 1);
     } else {
-      console.error(`All fallback streams exhausted for camera: ${camera.name}`);
+      console.warn(`All fallback streams exhausted for camera: ${camera.name}`);
     }
   };
 

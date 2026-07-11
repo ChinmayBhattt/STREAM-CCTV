@@ -34,7 +34,7 @@ export default function FullscreenView({ camera, onClose }: FullscreenViewProps)
       setCurrentUrl(nextStream);
       setFallbackIdx((prev) => prev + 1);
     } else {
-      console.error(`All fallback streams exhausted in fullscreen for camera: ${camera.name}`);
+      console.warn(`All fallback streams exhausted in fullscreen for camera: ${camera.name}`);
     }
   };
 

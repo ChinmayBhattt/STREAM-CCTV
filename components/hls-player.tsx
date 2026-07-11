@@ -35,7 +35,7 @@ export default function HlsPlayer({
 
     // Native HTML5 Video Element error handler
     const handleNativeError = () => {
-      console.error(`Native video error playing: ${src}`);
+      console.warn(`Native video error playing: ${src}`);
       onError?.();
     };
 
@@ -90,7 +90,7 @@ export default function HlsPlayer({
               // Try loading manifest/fragments again once, then trigger fallback if still failing
               if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR || 
                   data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
-                console.error("Manifest load failed fatally. Triggering fallback.");
+                console.warn("Manifest load failed fatally. Triggering fallback.");
                 onError?.();
               } else {
                 hls.startLoad();
