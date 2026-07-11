@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { Person } from '@/lib/types';
-import { mockPeople, getAvatarColor, getInitials } from '@/lib/mock-data';
+import { getAvatarColor, getInitials } from '@/lib/mock-data';
+import { useDashboard } from '@/lib/dashboard-context';
 import {
   Search, MoreVertical, Pencil, Trash2, VolumeX, Volume2,
   UserPlus, X, Upload, Shield, Info,
 } from 'lucide-react';
 
 export default function WatchlistPage() {
-  const [people, setPeople] = useState<Person[]>(mockPeople);
+  const { people, enrollPerson, deletePerson, toggleMutePerson } = useDashboard();
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [modalOpen, setModalOpen] = useState(false);
@@ -23,14 +24,12 @@ export default function WatchlistPage() {
   });
 
   const handleDelete = (id: string) => {
-    setPeople((prev) => prev.filter((p) => p.id !== id));
+    deletePerson(id);
     setMenuOpenId(null);
   };
 
   const toggleMute = (id: string) => {
-    setPeople((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, alertsMuted: !p.alertsMuted } : p))
-    );
+    toggleMutePerson(id);
     setMenuOpenId(null);
   };
 
@@ -216,8 +215,8 @@ export default function WatchlistPage() {
       {modalOpen && (
         <EnrollModal
           onClose={() => setModalOpen(false)}
-          onSave={(person) => {
-            setPeople((prev) => [...prev, person]);
+          onSave={(personData) => {
+            enrollPerson(personData);
             setModalOpen(false);
           }}
         />
@@ -232,7 +231,7 @@ function EnrollModal({
   onSave,
 }: {
   onClose: () => void;
-  onSave: (person: Person) => void;
+  onSave: (person: Omit<Person, 'id' | 'enrolledAt' | 'matchCount' | 'alertsMuted' | 'matchThreshold'>) => void;
 }) {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
@@ -259,16 +258,11 @@ function EnrollModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
-      id: `person-${Date.now()}`,
       name,
       role,
       category,
       notes,
       photos: photos.length > 0 ? photos : ['/avatars/default.jpg'],
-      enrolledAt: new Date().toISOString(),
-      matchCount: 0,
-      alertsMuted: false,
-      matchThreshold: 0.75,
     });
   };
 

@@ -13,8 +13,8 @@ import {
   Shield,
   Search,
 } from 'lucide-react';
-import { mockAlerts } from '@/lib/mock-data';
 import SearchModal from '@/components/search-modal';
+import { useDashboard } from '@/lib/dashboard-context';
 
 const navItems = [
   { href: '/cameras', label: 'Cameras', icon: CameraIcon },
@@ -29,8 +29,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
+  const { alerts } = useDashboard();
 
-  const unreadAlerts = mockAlerts.filter((a) => !a.read).length;
+  const unreadAlerts = alerts.filter((a) => !a.read).length;
 
   useEffect(() => {
     if (!isAuthenticated) {

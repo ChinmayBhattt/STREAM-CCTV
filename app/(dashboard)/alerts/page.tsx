@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { mockAlerts, getAvatarColor, getInitials } from '@/lib/mock-data';
+import { getAvatarColor, getInitials } from '@/lib/mock-data';
 import { Alert } from '@/lib/types';
+import { useDashboard } from '@/lib/dashboard-context';
 import {
   Search, Check, CheckCheck, Bell, BellOff,
   Camera, Clock, Shield,
 } from 'lucide-react';
 
 export default function AlertsPage() {
-  const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
+  const { alerts, markAlertRead, markAllAlertsRead, dismissAlert } = useDashboard();
   const [search, setSearch] = useState('');
   const [filterRead, setFilterRead] = useState<'all' | 'unread' | 'read'>('all');
 
@@ -27,15 +28,15 @@ export default function AlertsPage() {
   const unreadCount = alerts.filter((a) => !a.read).length;
 
   const markAsRead = (id: string) => {
-    setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, read: true } : a)));
+    markAlertRead(id);
   };
 
   const markAllRead = () => {
-    setAlerts((prev) => prev.map((a) => ({ ...a, read: true })));
+    markAllAlertsRead();
   };
 
   const dismiss = (id: string) => {
-    setAlerts((prev) => prev.filter((a) => a.id !== id));
+    dismissAlert(id);
   };
 
   const formatTime = (ts: string) => {

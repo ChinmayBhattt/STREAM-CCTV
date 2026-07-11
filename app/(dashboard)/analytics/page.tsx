@@ -1,6 +1,6 @@
 'use client';
 
-import { mockFootfallData, mockAnalyticsSummary, mockCameras } from '@/lib/mock-data';
+import { useDashboard } from '@/lib/dashboard-context';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
@@ -10,12 +10,12 @@ import { TrendingUp, TrendingDown, Users, Camera, Bell, Clock } from 'lucide-rea
 const chartColors = ['var(--accent-lime)', 'var(--accent-cyan)', 'var(--accent-orange)', 'var(--accent-purple)'];
 
 export default function AnalyticsPage() {
-  const summary = mockAnalyticsSummary;
-  const onlineCameras = mockCameras.filter((c) => c.status === 'online');
+  const { cameras, footfallData, summary } = useDashboard();
+  const onlineCameras = cameras.filter((c) => c.status === 'online');
 
   // Peak hours data for bar chart
   const peakData = onlineCameras.map((cam) => {
-    const camData = mockFootfallData.reduce(
+    const camData = footfallData.reduce(
       (max, dp) => {
         const val = (dp[cam.name] as number) ?? 0;
         return val > max.count ? { hour: dp.hour, count: val } : max;
@@ -42,7 +42,7 @@ export default function AnalyticsPage() {
     },
     {
       label: 'Active Cameras',
-      value: `${summary.activeCameras} / ${mockCameras.length}`,
+      value: `${summary.activeCameras} / ${cameras.length}`,
       change: null,
       icon: Camera,
       color: 'var(--accent-orange)',
@@ -117,7 +117,7 @@ export default function AnalyticsPage() {
           </p>
           <div style={{ width: '100%', height: 320 }}>
             <ResponsiveContainer>
-              <AreaChart data={mockFootfallData} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
+              <AreaChart data={footfallData} margin={{ top: 5, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   {onlineCameras.map((cam, i) => (
                     <linearGradient key={cam.id} id={`grad-${i}`} x1="0" y1="0" x2="0" y2="1">
@@ -226,7 +226,7 @@ export default function AnalyticsPage() {
           Live Connection Status & Counts
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {mockCameras.map((cam) => (
+          {cameras.map((cam) => (
             <div
               key={cam.id}
               className="glass-panel p-4 text-center glass-panel-hover"

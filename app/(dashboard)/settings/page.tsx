@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import { Settings as SettingsType } from '@/lib/types';
+import { useDashboard } from '@/lib/dashboard-context';
 import {
   Save, Shield, Database, Bell, Eye, Trash2,
   Download, RotateCcw, Info,
 } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { purgeAllData } = useDashboard();
   const [settings, setSettings] = useState<SettingsType>({
     matchThreshold: 75,
     retentionDays: 30,
@@ -175,7 +177,15 @@ export default function SettingsPage() {
             <button className="btn-pill-secondary" id="export-data-btn">
               <Download size={14} /> Export Biometric DB
             </button>
-            <button className="btn-pill-danger" id="purge-data-btn">
+            <button
+              className="btn-pill-danger"
+              id="purge-data-btn"
+              onClick={() => {
+                if (confirm("Are you sure you want to delete all cameras, watchlist profiles, and alerts? This cannot be undone.")) {
+                  purgeAllData();
+                }
+              }}
+            >
               <Trash2 size={14} /> Purge Watchlist Database
             </button>
           </div>

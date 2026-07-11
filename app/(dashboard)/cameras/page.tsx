@@ -2,41 +2,34 @@
 
 import { useState } from 'react';
 import { Camera } from '@/lib/types';
-import { mockCameras } from '@/lib/mock-data';
+import { useDashboard } from '@/lib/dashboard-context';
 import CameraTile from '@/components/camera-tile';
 import CameraModal from '@/components/camera-modal';
 import FullscreenView from '@/components/fullscreen-view';
 import { Plus, Grid3X3, LayoutGrid } from 'lucide-react';
 
 export default function CamerasPage() {
-  const [cameras, setCameras] = useState<Camera[]>(mockCameras);
+  const { cameras, addCamera, editCamera, deleteCamera } = useDashboard();
   const [modalOpen, setModalOpen] = useState(false);
-  const [editCamera, setEditCamera] = useState<Camera | null>(null);
+  const [editCameraObj, setEditCameraObj] = useState<Camera | null>(null);
   const [fullscreenCamera, setFullscreenCamera] = useState<Camera | null>(null);
   const [gridCols, setGridCols] = useState<2 | 3>(3);
 
   const handleSave = (data: Partial<Camera>) => {
-    if (editCamera) {
-      setCameras((prev) =>
-        prev.map((c) => (c.id === editCamera.id ? { ...c, ...data } : c))
-      );
+    if (editCameraObj) {
+      editCamera(editCameraObj.id, data);
     } else {
-      const newCam: Camera = {
-        id: `cam-${Date.now()}`,
+      addCamera({
         name: data.name ?? 'New Camera',
         location: data.location ?? '',
         streamUrl: data.streamUrl ?? '',
-        status: 'online',
-        personCount: 0,
-        order: cameras.length,
-      };
-      setCameras((prev) => [...prev, newCam]);
+      });
     }
-    setEditCamera(null);
+    setEditCameraObj(null);
   };
 
   const handleDelete = (id: string) => {
-    setCameras((prev) => prev.filter((c) => c.id !== id));
+    deleteCamera(id);
   };
 
   const onlineCams = cameras.filter((c) => c.status === 'online').length;
@@ -91,7 +84,7 @@ export default function CamerasPage() {
 
           <button
             className="btn-pill-primary"
-            onClick={() => { setEditCamera(null); setModalOpen(true); }}
+            onClick={() => { setEditCameraObj(null); setModalOpen(true); }}
             id="add-camera-btn"
           >
             <Plus size={16} /> Add Camera
@@ -111,7 +104,7 @@ export default function CamerasPage() {
             key={cam.id}
             camera={cam}
             onFullscreen={setFullscreenCamera}
-            onEdit={(c) => { setEditCamera(c); setModalOpen(true); }}
+            onEdit={(c) => { setEditCameraObj(c); setModalOpen(true); }}
             onDelete={handleDelete}
           />
         ))}
@@ -141,8 +134,8 @@ export default function CamerasPage() {
       {/* Modal */}
       {modalOpen && (
         <CameraModal
-          camera={editCamera}
-          onClose={() => { setModalOpen(false); setEditCamera(null); }}
+          camera={editCameraObj}
+          onClose={() => { setModalOpen(false); setEditCameraObj(null); }}
           onSave={handleSave}
         />
       )}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Camera, Person } from '@/lib/types';
-import { mockCameras, mockPeople } from '@/lib/mock-data';
+import { useDashboard } from '@/lib/dashboard-context';
 import { Search, X, Video, User, ShieldAlert, ArrowRight } from 'lucide-react';
 
 interface SearchModalProps {
@@ -12,6 +12,7 @@ interface SearchModalProps {
 }
 
 export default function SearchModal({ onClose, onFullscreenCamera }: SearchModalProps) {
+  const { cameras, people } = useDashboard();
   const [query, setQuery] = useState('');
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -27,13 +28,13 @@ export default function SearchModal({ onClose, onFullscreenCamera }: SearchModal
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  // Filter mock data
-  const filteredCameras = query.trim() === '' ? [] : mockCameras.filter(c => 
+  // Filter active data
+  const filteredCameras = query.trim() === '' ? [] : cameras.filter(c => 
     c.name.toLowerCase().includes(query.toLowerCase()) || 
     c.location.toLowerCase().includes(query.toLowerCase())
   );
 
-  const filteredPeople = query.trim() === '' ? [] : mockPeople.filter(p => 
+  const filteredPeople = query.trim() === '' ? [] : people.filter(p => 
     p.name.toLowerCase().includes(query.toLowerCase()) || 
     p.role.toLowerCase().includes(query.toLowerCase())
   );
